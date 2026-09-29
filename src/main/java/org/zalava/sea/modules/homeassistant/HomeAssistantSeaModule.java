@@ -9,10 +9,10 @@ import org.zalava.ManagedServiceDeclaration;
 import org.zalava.ModuleConfigurationDescriptor;
 import org.zalava.ModuleDescriptor;
 import org.zalava.ProviderFactory;
-import org.zalava.SeaModule;
+import org.zalava.ZalavaModule;
 
 /** External SEA module for a SEA-managed Home Assistant instance. */
-public final class HomeAssistantSeaModule implements SeaModule {
+public final class HomeAssistantSeaModule implements ZalavaModule {
 
   public static final String MODULE_ID = "zalava-module-home-assistant";
 

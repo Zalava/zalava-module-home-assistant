@@ -7,15 +7,15 @@ import java.util.Map;
 import org.zalava.InvocationContext;
 import org.zalava.ProviderCapabilities;
 import org.zalava.ProviderDescriptor;
-import org.zalava.SeaOperationResult;
-import org.zalava.SeaProvider;
-import org.zalava.SeaToolDescriptor;
+import org.zalava.ZalavaOperationResult;
+import org.zalava.ZalavaProvider;
+import org.zalava.ZalavaToolDescriptor;
 
 /**
  * Agent-facing provider exposing bounded, read-only Home Assistant status plus the managed-service
  * declaration. It offers no raw device administration and no shell or URL pass-through.
  */
-final class HomeAssistantProvider implements SeaProvider {
+final class HomeAssistantProvider implements ZalavaProvider {
   private static final String STATUS = "home_assistant_status";
   private static final String VERSION = "home_assistant_version";
   private static final String ENTITIES = "home_assistant_entities";
@@ -48,7 +48,7 @@ final class HomeAssistantProvider implements SeaProvider {
   }
 
   @Override
-  public List<SeaToolDescriptor> listTools() {
+  public List<ZalavaToolDescriptor> listTools() {
     return List.of(
         tool(STATUS, "Reports whether the managed Home Assistant API is reachable."),
         tool(VERSION, "Returns the running Home Assistant version."),
@@ -61,33 +61,33 @@ final class HomeAssistantProvider implements SeaProvider {
   }
 
   @Override
-  public SeaOperationResult callTool(
+  public ZalavaOperationResult callTool(
       String toolName, JsonNode arguments, InvocationContext context) {
     try {
       return switch (toolName) {
         case STATUS -> status();
-        case VERSION -> SeaOperationResult.success(Map.of("version", client.version()));
+        case VERSION -> ZalavaOperationResult.success(Map.of("version", client.version()));
         case ENTITIES -> entities();
         case MANAGED_SERVICE -> managedService();
-        default -> SeaOperationResult.failure(Map.of("error", "Unknown tool: " + toolName));
+        default -> ZalavaOperationResult.failure(Map.of("error", "Unknown tool: " + toolName));
       };
     } catch (HomeAssistantException exception) {
-      return SeaOperationResult.failure(Map.of("error", exception.getMessage()));
+      return ZalavaOperationResult.failure(Map.of("error", exception.getMessage()));
     }
   }
 
-  private SeaOperationResult status() {
+  private ZalavaOperationResult status() {
     HomeAssistantClient.Response response = client.get("/api/");
-    return SeaOperationResult.success(
+    return ZalavaOperationResult.success(
         Map.of("statusCode", response.statusCode(), "reachable", response.ok()));
   }
 
-  private SeaOperationResult entities() {
+  private ZalavaOperationResult entities() {
     List<Map<String, Object>> entities = client.entities(MAX_ENTITIES);
-    return SeaOperationResult.success(Map.of("count", entities.size(), "entities", entities));
+    return ZalavaOperationResult.success(Map.of("count", entities.size(), "entities", entities));
   }
 
-  private SeaOperationResult managedService() {
+  private ZalavaOperationResult managedService() {
     var desired = HomeAssistantManagedService.desiredState();
     Map<String, Object> declaration = new LinkedHashMap<>();
     declaration.put("configured", true);
@@ -100,11 +100,11 @@ final class HomeAssistantProvider implements SeaProvider {
     declaration.put("secretReferences", List.copyOf(desired.secretReferences()));
     declaration.put("devices", List.copyOf(desired.devices()));
     declaration.put("administratorApprovalRequired", true);
-    return SeaOperationResult.success(Map.copyOf(declaration));
+    return ZalavaOperationResult.success(Map.copyOf(declaration));
   }
 
-  private static SeaToolDescriptor tool(String name, String description) {
-    return new SeaToolDescriptor(
+  private static ZalavaToolDescriptor tool(String name, String description) {
+    return new ZalavaToolDescriptor(
         name, description, false, List.of("home"), Map.of("type", "object"));
   }
 }
