@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.zalava.ProviderFactory;
 import org.zalava.ProviderFactoryContext;
 import org.zalava.ProviderFactoryDescriptor;
-import org.zalava.SeaProvider;
+import org.zalava.ZalavaProvider;
 
 /** Creates the bounded Home Assistant provider from scoped configuration and secrets. */
 final class HomeAssistantProviderFactory implements ProviderFactory {
@@ -21,7 +21,7 @@ final class HomeAssistantProviderFactory implements ProviderFactory {
   }
 
   @Override
-  public List<SeaProvider> createProviders(ProviderFactoryContext context) {
+  public List<ZalavaProvider> createProviders(ProviderFactoryContext context) {
     if (!HomeAssistantConfiguration.isConfigured(context.configuration())) {
       return List.of();
     }

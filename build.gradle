@@ -34,7 +34,7 @@ if (releaseTag != null && metadataVersion != releaseTag.substring(1)) {
 }
 version = releaseTag != null ? releaseTag.substring(1) : metadataVersion
 
-def moduleApiVersion = providers.gradleProperty('moduleApiVersion').orElse('0.1.0-alpha.1')
+def moduleApiVersion = providers.gradleProperty('moduleApiVersion').orElse('0.1.0-alpha.2')
 def moduleApiRepositoryUrl = providers.gradleProperty('moduleApiRepositoryUrl')
         .orElse('https://zalava.github.io/zalava-maven/')
 def githubPackagesActor = providers.gradleProperty('gpr.user')
@@ -141,8 +141,8 @@ tasks.register('verifyReleaseArtifact') {
     doLast {
         def moduleJar = tasks.named('jar').get().archiveFile.get().asFile
         def contents = zipTree(moduleJar)
-        if (contents.matching { include 'META-INF/services/org.zalava.SeaModule' }.isEmpty()) {
-            throw new GradleException('module JAR must contain the SeaModule service descriptor')
+        if (contents.matching { include 'META-INF/services/org.zalava.ZalavaModule' }.isEmpty()) {
+            throw new GradleException('module JAR must contain the ZalavaModule service descriptor')
         }
         if (contents.matching { include 'module-metadata.yaml' }.isEmpty()) {
             throw new GradleException('module JAR must embed module-metadata.yaml')

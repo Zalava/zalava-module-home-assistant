@@ -17,9 +17,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.zalava.InvocationContext;
-import org.zalava.SeaOperationResult;
-import org.zalava.SeaProvider;
-import org.zalava.SeaToolDescriptor;
+import org.zalava.ZalavaOperationResult;
+import org.zalava.ZalavaProvider;
+import org.zalava.ZalavaToolDescriptor;
 import org.zalava.testing.ConfigFixture;
 import org.zalava.testing.ModuleContractKit;
 import org.zalava.testing.ProviderFixture;
@@ -106,12 +106,12 @@ class HomeAssistantSeaModuleTest {
   @Test
   void createsTheConfiguredProviderAndDeclaresItsReadOnlyTools() {
     try (ProviderFixture providers = kit.providers(configuration(UNREACHABLE_BASE_URL, Map.of()))) {
-      SeaProvider provider = providers.requireProvider(PROVIDER_ID);
+      ZalavaProvider provider = providers.requireProvider(PROVIDER_ID);
 
       assertThat(provider.descriptor().providerId()).isEqualTo(PROVIDER_ID);
       assertThat(provider.descriptor().moduleId()).isEqualTo(MODULE_ID);
       assertThat(provider.descriptor().providerType()).isEqualTo("home-automation");
-      assertThat(provider.listTools().stream().map(SeaToolDescriptor::name))
+      assertThat(provider.listTools().stream().map(ZalavaToolDescriptor::name))
           .containsExactly(
               "home_assistant_status",
               "home_assistant_version",
@@ -256,7 +256,7 @@ class HomeAssistantSeaModuleTest {
     }
 
     try (ProviderFixture providers = kit.providers(configuration(UNREACHABLE_BASE_URL, Map.of()))) {
-      SeaProvider provider = providers.requireProvider(PROVIDER_ID);
+      ZalavaProvider provider = providers.requireProvider(PROVIDER_ID);
       assertThat(
               provider
                   .callTool("unknown_tool", arguments(), InvocationContext.system())
@@ -296,7 +296,7 @@ class HomeAssistantSeaModuleTest {
   }
 
   @SuppressWarnings("unchecked")
-  private static Map<String, Object> content(SeaOperationResult result) {
+  private static Map<String, Object> content(ZalavaOperationResult result) {
     return (Map<String, Object>) result.content();
   }
 
