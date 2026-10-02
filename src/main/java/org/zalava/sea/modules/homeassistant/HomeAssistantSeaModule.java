@@ -78,13 +78,13 @@ public final class HomeAssistantSeaModule implements ZalavaModule {
   public List<ManagedServiceDeclaration> managedServices() {
     return List.of(
         new ManagedServiceDeclaration(
-            HomeAssistantManagedService.RESOURCE_ID,
-            HomeAssistantManagedService.desiredState()));
+            HomeAssistantManagedService.RESOURCE_ID, HomeAssistantManagedService.desiredState()));
   }
 
   static String version() {
     Properties properties = new Properties();
-    try (InputStream input = HomeAssistantSeaModule.class.getResourceAsStream("/module.properties")) {
+    try (InputStream input =
+        HomeAssistantSeaModule.class.getResourceAsStream("/module.properties")) {
       if (input == null) {
         throw new IllegalStateException("Missing module version metadata");
       }

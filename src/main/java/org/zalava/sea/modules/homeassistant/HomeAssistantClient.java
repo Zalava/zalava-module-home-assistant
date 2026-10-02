@@ -1,8 +1,5 @@
 package org.zalava.modules.homeassistant;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +13,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Bounded, authenticated read-only client for a SEA-managed Home Assistant instance.
@@ -34,7 +34,11 @@ final class HomeAssistantClient {
   private final int maxResponseBytes;
 
   HomeAssistantClient(
-      URI baseUri, char[] token, Duration connectTimeout, Duration requestTimeout, int maxResponseBytes) {
+      URI baseUri,
+      char[] token,
+      Duration connectTimeout,
+      Duration requestTimeout,
+      int maxResponseBytes) {
     this.baseUri = normalize(baseUri);
     this.token = new String(token);
     this.requestTimeout = requestTimeout;
@@ -66,7 +70,8 @@ final class HomeAssistantClient {
       throw new HomeAssistantException("Home Assistant request failed for " + path, exception);
     } catch (InterruptedException exception) {
       Thread.currentThread().interrupt();
-      throw new HomeAssistantException("Home Assistant request was interrupted for " + path, exception);
+      throw new HomeAssistantException(
+          "Home Assistant request was interrupted for " + path, exception);
     }
   }
 

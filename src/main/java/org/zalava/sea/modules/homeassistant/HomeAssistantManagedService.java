@@ -20,6 +20,7 @@ final class HomeAssistantManagedService {
   static final int LOOPBACK_PORT = 8123;
   static final String CONFIG_DATA_PATH = "/var/lib/sea/managed/home-assistant/config";
   static final String TOKEN_SECRET_REFERENCE = "home-assistant-token";
+
   /**
    * The upstream Home Assistant Container release this module release supports. The module owns the
    * pin: admins approve the derived grant, not an arbitrary image, and updating the provider means
@@ -27,6 +28,7 @@ final class HomeAssistantManagedService {
    */
   static final String PINNED_IMAGE_DIGEST =
       "612d76760b544cb40b7ba01387fdac964c59a6a550a50a4d30b4773c822d2918";
+
   static final String PINNED_IMAGE_REVISION = "2026.9.1";
   private static final Pattern DIGEST = Pattern.compile("[a-f0-9]{64}");
 
