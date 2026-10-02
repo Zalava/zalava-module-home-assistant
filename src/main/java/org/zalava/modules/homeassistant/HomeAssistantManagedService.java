@@ -3,9 +3,9 @@ package org.zalava.modules.homeassistant;
 import java.time.Duration;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.zalava.managed.ManagedServiceDesiredState;
-import org.zalava.managed.ManagedServiceLifecycle;
-import org.zalava.managed.ManagedServiceLimits;
+import org.zalava.api.extensions.managed.ManagedServiceDesiredState;
+import org.zalava.api.extensions.managed.ManagedServiceLifecycle;
+import org.zalava.api.extensions.managed.ManagedServiceLimits;
 
 /**
  * SEA-managed declaration of the pinned Home Assistant Container.

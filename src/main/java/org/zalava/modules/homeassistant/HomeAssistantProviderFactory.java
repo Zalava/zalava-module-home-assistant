@@ -2,10 +2,10 @@ package org.zalava.modules.homeassistant;
 
 import java.util.List;
 import java.util.Optional;
-import org.zalava.ProviderFactory;
-import org.zalava.ProviderFactoryContext;
-import org.zalava.ProviderFactoryDescriptor;
-import org.zalava.ZalavaProvider;
+import org.zalava.api.ProviderFactory;
+import org.zalava.api.ProviderFactoryContext;
+import org.zalava.api.ProviderFactoryDescriptor;
+import org.zalava.api.ZalavaProvider;
 
 /** Creates the bounded Home Assistant provider from scoped configuration and secrets. */
 final class HomeAssistantProviderFactory implements ProviderFactory {

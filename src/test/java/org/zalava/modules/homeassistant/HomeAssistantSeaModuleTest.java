@@ -19,13 +19,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.zalava.InvocationContext;
-import org.zalava.ZalavaOperationResult;
-import org.zalava.ZalavaProvider;
-import org.zalava.ZalavaToolDescriptor;
-import org.zalava.testing.ConfigFixture;
-import org.zalava.testing.ModuleContractKit;
-import org.zalava.testing.ProviderFixture;
+import org.zalava.api.InvocationContext;
+import org.zalava.api.ZalavaOperationResult;
+import org.zalava.api.ZalavaProvider;
+import org.zalava.api.ZalavaToolDescriptor;
+import org.zalava.api.testing.ConfigFixture;
+import org.zalava.api.testing.ModuleContractKit;
+import org.zalava.api.testing.ProviderFixture;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 
@@ -132,10 +132,28 @@ class HomeAssistantSeaModuleTest {
             });
 
     try (ProviderFixture providers = kit.providers(configuration(baseUrl(), Map.of()))) {
-      assertThat(content(providers.invoke(PROVIDER_ID, "home_assistant_status", arguments())))
+      assertThat(
+              content(
+                  providers.invoke(
+                      PROVIDER_ID,
+                      "home_assistant_status",
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments(),
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {}))))
           .containsEntry("statusCode", 200)
           .containsEntry("reachable", true);
-      assertThat(content(providers.invoke(PROVIDER_ID, "home_assistant_version", arguments())))
+      assertThat(
+              content(
+                  providers.invoke(
+                      PROVIDER_ID,
+                      "home_assistant_version",
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments(),
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {}))))
           .containsEntry("version", "2026.9.1");
     }
 
@@ -160,7 +178,15 @@ class HomeAssistantSeaModuleTest {
 
     try (ProviderFixture providers = kit.providers(configuration(baseUrl(), Map.of()))) {
       Map<String, Object> result =
-          content(providers.invoke(PROVIDER_ID, "home_assistant_entities", arguments()));
+          content(
+              providers.invoke(
+                  PROVIDER_ID,
+                  "home_assistant_entities",
+                  new tools.jackson.databind.json.JsonMapper()
+                      .convertValue(
+                          arguments(),
+                          new tools.jackson.core.type.TypeReference<
+                              java.util.Map<String, Object>>() {})));
       assertThat(result).containsEntry("count", 3);
       @SuppressWarnings("unchecked")
       List<Map<String, Object>> entities = (List<Map<String, Object>>) result.get("entities");
@@ -189,7 +215,15 @@ class HomeAssistantSeaModuleTest {
 
     try (ProviderFixture providers = kit.providers(configuration(UNREACHABLE_BASE_URL, Map.of()))) {
       Map<String, Object> toolDeclaration =
-          content(providers.invoke(PROVIDER_ID, "home_assistant_managed_service", arguments()));
+          content(
+              providers.invoke(
+                  PROVIDER_ID,
+                  "home_assistant_managed_service",
+                  new tools.jackson.databind.json.JsonMapper()
+                      .convertValue(
+                          arguments(),
+                          new tools.jackson.core.type.TypeReference<
+                              java.util.Map<String, Object>>() {})));
       assertThat(toolDeclaration)
           .containsEntry("configured", true)
           .containsEntry("resourceId", "home-assistant")
@@ -237,23 +271,62 @@ class HomeAssistantSeaModuleTest {
   void returnsFailureInsteadOfThrowingWhenUnreachableOrOversized() throws Exception {
     try (ProviderFixture providers =
         kit.providers(configuration(UNREACHABLE_BASE_URL, Map.of("requestTimeoutSeconds", 1)))) {
-      assertThat(providers.invoke(PROVIDER_ID, "home_assistant_status", arguments()).success())
+      assertThat(
+              providers
+                  .invoke(
+                      PROVIDER_ID,
+                      "home_assistant_status",
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments(),
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {}))
+                  .success())
           .isFalse();
-      assertThat(providers.invoke(PROVIDER_ID, "home_assistant_version", arguments()).success())
+      assertThat(
+              providers
+                  .invoke(
+                      PROVIDER_ID,
+                      "home_assistant_version",
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments(),
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {}))
+                  .success())
           .isFalse();
     }
 
     server = server(exchange -> respond(exchange, 200, "x".repeat(5000)));
     try (ProviderFixture providers =
         kit.providers(configuration(baseUrl(), Map.of("maxResponseBytes", 100)))) {
-      assertThat(providers.invoke(PROVIDER_ID, "home_assistant_version", arguments()).success())
+      assertThat(
+              providers
+                  .invoke(
+                      PROVIDER_ID,
+                      "home_assistant_version",
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments(),
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {}))
+                  .success())
           .isFalse();
     }
 
     try (ProviderFixture providers = kit.providers(configuration(UNREACHABLE_BASE_URL, Map.of()))) {
       ZalavaProvider provider = providers.requireProvider(PROVIDER_ID);
       assertThat(
-              provider.callTool("unknown_tool", arguments(), InvocationContext.system()).success())
+              provider
+                  .callTool(
+                      "unknown_tool",
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments(),
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {}),
+                      InvocationContext.system())
+                  .success())
           .isFalse();
     }
   }
