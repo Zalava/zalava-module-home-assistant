@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.zalava.InvocationContext;
 import org.zalava.ZalavaOperationResult;
 import org.zalava.ZalavaProvider;
@@ -23,17 +26,14 @@ import org.zalava.ZalavaToolDescriptor;
 import org.zalava.testing.ConfigFixture;
 import org.zalava.testing.ModuleContractKit;
 import org.zalava.testing.ProviderFixture;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 
 /**
- * Exercises the real built module JAR at the stable {@code module-api} boundary through the released
- * contract kit. A loopback {@code HttpServer} stands in for the managed Home Assistant instance so
- * no real device is required. Host-owned resolution, validation, permissions and persistence stay
- * covered by SEA.
+ * Exercises the real built module JAR at the stable {@code module-api} boundary through the
+ * released contract kit. A loopback {@code HttpServer} stands in for the managed Home Assistant
+ * instance so no real device is required. Host-owned resolution, validation, permissions and
+ * persistence stay covered by SEA.
  */
 class HomeAssistantSeaModuleTest {
 
@@ -72,12 +72,7 @@ class HomeAssistantSeaModuleTest {
   void loadsTheModuleFromTheBuiltArtifact() {
     assertThat(kit.module().getClass().getClassLoader()).isNotSameAs(getClass().getClassLoader());
     assertThat(
-            kit.module()
-                .getClass()
-                .getProtectionDomain()
-                .getCodeSource()
-                .getLocation()
-                .toString())
+            kit.module().getClass().getProtectionDomain().getCodeSource().getLocation().toString())
         .endsWith(".jar");
   }
 
@@ -99,8 +94,9 @@ class HomeAssistantSeaModuleTest {
     Map<String, Object> schema = kit.module().configuration().jsonSchema();
 
     assertThat(schema).containsEntry("type", "object");
-    assertThat(schema.get("properties")).isInstanceOfSatisfying(
-        Map.class, properties -> assertThat(properties).containsKey(FACTORY_ID));
+    assertThat(schema.get("properties"))
+        .isInstanceOfSatisfying(
+            Map.class, properties -> assertThat(properties).containsKey(FACTORY_ID));
   }
 
   @Test
@@ -240,8 +236,7 @@ class HomeAssistantSeaModuleTest {
   @Test
   void returnsFailureInsteadOfThrowingWhenUnreachableOrOversized() throws Exception {
     try (ProviderFixture providers =
-        kit.providers(
-            configuration(UNREACHABLE_BASE_URL, Map.of("requestTimeoutSeconds", 1)))) {
+        kit.providers(configuration(UNREACHABLE_BASE_URL, Map.of("requestTimeoutSeconds", 1)))) {
       assertThat(providers.invoke(PROVIDER_ID, "home_assistant_status", arguments()).success())
           .isFalse();
       assertThat(providers.invoke(PROVIDER_ID, "home_assistant_version", arguments()).success())
@@ -258,9 +253,7 @@ class HomeAssistantSeaModuleTest {
     try (ProviderFixture providers = kit.providers(configuration(UNREACHABLE_BASE_URL, Map.of()))) {
       ZalavaProvider provider = providers.requireProvider(PROVIDER_ID);
       assertThat(
-              provider
-                  .callTool("unknown_tool", arguments(), InvocationContext.system())
-                  .success())
+              provider.callTool("unknown_tool", arguments(), InvocationContext.system()).success())
           .isFalse();
     }
   }

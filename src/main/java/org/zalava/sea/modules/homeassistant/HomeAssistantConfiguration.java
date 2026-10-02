@@ -6,10 +6,7 @@ import java.util.Map;
 
 /** Validated scoped configuration for one Home Assistant provider instance. */
 record HomeAssistantConfiguration(
-    URI baseUrl,
-    Duration connectTimeout,
-    Duration requestTimeout,
-    int maxResponseBytes) {
+    URI baseUrl, Duration connectTimeout, Duration requestTimeout, int maxResponseBytes) {
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 10;
   private static final int DEFAULT_MAX_RESPONSE_BYTES = 1_000_000;
@@ -21,7 +18,8 @@ record HomeAssistantConfiguration(
 
   static HomeAssistantConfiguration from(Map<String, Object> configuration) {
     URI baseUrl = baseUrl(configuration);
-    int timeoutSeconds = positiveInt(configuration, "requestTimeoutSeconds", DEFAULT_TIMEOUT_SECONDS);
+    int timeoutSeconds =
+        positiveInt(configuration, "requestTimeoutSeconds", DEFAULT_TIMEOUT_SECONDS);
     int maxResponseBytes =
         positiveInt(configuration, "maxResponseBytes", DEFAULT_MAX_RESPONSE_BYTES);
     return new HomeAssistantConfiguration(

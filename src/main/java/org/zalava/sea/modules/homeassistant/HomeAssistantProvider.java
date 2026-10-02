@@ -1,6 +1,5 @@
 package org.zalava.modules.homeassistant;
 
-import tools.jackson.databind.JsonNode;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +9,7 @@ import org.zalava.ProviderDescriptor;
 import org.zalava.ZalavaOperationResult;
 import org.zalava.ZalavaProvider;
 import org.zalava.ZalavaToolDescriptor;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Agent-facing provider exposing bounded, read-only Home Assistant status plus the managed-service
