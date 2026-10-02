@@ -5,11 +5,11 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import org.zalava.ManagedServiceDeclaration;
-import org.zalava.ModuleConfigurationDescriptor;
-import org.zalava.ModuleDescriptor;
-import org.zalava.ProviderFactory;
-import org.zalava.ZalavaModule;
+import org.zalava.api.ModuleConfigurationDescriptor;
+import org.zalava.api.ModuleDescriptor;
+import org.zalava.api.ProviderFactory;
+import org.zalava.api.ZalavaModule;
+import org.zalava.api.extensions.managed.ManagedServiceDeclaration;
 
 /** External SEA module for a SEA-managed Home Assistant instance. */
 public final class HomeAssistantSeaModule implements ZalavaModule {
