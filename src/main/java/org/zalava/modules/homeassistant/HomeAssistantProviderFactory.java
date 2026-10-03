@@ -14,7 +14,7 @@ final class HomeAssistantProviderFactory implements ProviderFactory {
   public ProviderFactoryDescriptor descriptor() {
     return new ProviderFactoryDescriptor(
         "home-assistant",
-        HomeAssistantSeaModule.MODULE_ID,
+        HomeAssistantZalavaModule.MODULE_ID,
         "home-automation",
         "Home Assistant",
         "Bounded read-only Home Assistant status, entity discovery and managed-service declaration");

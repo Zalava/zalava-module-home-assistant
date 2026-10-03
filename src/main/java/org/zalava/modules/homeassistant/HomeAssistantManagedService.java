@@ -8,9 +8,9 @@ import org.zalava.api.extensions.managed.ManagedServiceLifecycle;
 import org.zalava.api.extensions.managed.ManagedServiceLimits;
 
 /**
- * SEA-managed declaration of the pinned Home Assistant Container.
+ * Zalava-managed declaration of the pinned Home Assistant Container.
  *
- * <p>This is a module-declared desired state only: SEA administrators still approve the matching
+ * <p>This is a module-declared desired state only: Zalava administrators still approve the matching
  * resource grant and execute the install. The container publishes only loopback port 8123, owns a
  * managed configuration volume, requests no host devices, and is never granted the engine socket.
  */
@@ -18,7 +18,7 @@ final class HomeAssistantManagedService {
   static final String RESOURCE_ID = "home-assistant";
   static final String IMAGE_REPOSITORY = "ghcr.io/home-assistant/home-assistant";
   static final int LOOPBACK_PORT = 8123;
-  static final String CONFIG_DATA_PATH = "/var/lib/sea/managed/home-assistant/config";
+  static final String CONFIG_DATA_PATH = "/var/lib/zalava/managed/home-assistant/config";
   static final String TOKEN_SECRET_REFERENCE = "home-assistant-token";
 
   /**

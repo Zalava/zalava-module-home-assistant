@@ -18,11 +18,11 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Bounded, authenticated read-only client for a SEA-managed Home Assistant instance.
+ * Bounded, authenticated read-only client for a Zalava-managed Home Assistant instance.
  *
  * <p>The token is only ever sent as a bearer header; it is never logged or returned. Every response
- * is capped at a caller-chosen byte bound so a hostile or misconfigured instance cannot exhaust SEA
- * memory.
+ * is capped at a caller-chosen byte bound so a hostile or misconfigured instance cannot exhaust
+ * Zalava memory.
  */
 final class HomeAssistantClient {
   private static final ObjectMapper MAPPER = new ObjectMapper();

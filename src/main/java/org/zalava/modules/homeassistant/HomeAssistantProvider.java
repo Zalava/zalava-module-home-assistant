@@ -31,11 +31,11 @@ final class HomeAssistantProvider implements ZalavaProvider {
   public ProviderDescriptor descriptor() {
     return new ProviderDescriptor(
         "home-assistant",
-        HomeAssistantSeaModule.MODULE_ID,
+        HomeAssistantZalavaModule.MODULE_ID,
         "home-automation",
         "Home Assistant",
         "Bounded read-only Home Assistant status, entity discovery and managed-service declaration",
-        HomeAssistantSeaModule.version(),
+        HomeAssistantZalavaModule.version(),
         ProviderCapabilities.toolsOnly(),
         List.of("home", "home-automation"),
         Map.of());

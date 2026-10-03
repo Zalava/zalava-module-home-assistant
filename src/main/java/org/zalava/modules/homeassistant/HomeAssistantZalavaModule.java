@@ -11,8 +11,8 @@ import org.zalava.api.ProviderFactory;
 import org.zalava.api.ZalavaModule;
 import org.zalava.api.extensions.managed.ManagedServiceDeclaration;
 
-/** External SEA module for a SEA-managed Home Assistant instance. */
-public final class HomeAssistantSeaModule implements ZalavaModule {
+/** External Zalava module for a Zalava-managed Home Assistant instance. */
+public final class HomeAssistantZalavaModule implements ZalavaModule {
 
   public static final String MODULE_ID = "zalava-module-home-assistant";
 
@@ -55,7 +55,7 @@ public final class HomeAssistantSeaModule implements ZalavaModule {
                             "type", "string",
                             "title", "Loopback base URL",
                             "description",
-                                "Loopback base URL of the SEA-managed Home Assistant instance, e.g. http://127.0.0.1:8123"),
+                                "Loopback base URL of the Zalava-managed Home Assistant instance, e.g. http://127.0.0.1:8123"),
                         "tokenRef",
                         Map.of(
                             "type", "string",
@@ -84,7 +84,7 @@ public final class HomeAssistantSeaModule implements ZalavaModule {
   static String version() {
     Properties properties = new Properties();
     try (InputStream input =
-        HomeAssistantSeaModule.class.getResourceAsStream("/module.properties")) {
+        HomeAssistantZalavaModule.class.getResourceAsStream("/module.properties")) {
       if (input == null) {
         throw new IllegalStateException("Missing module version metadata");
       }
