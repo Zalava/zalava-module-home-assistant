@@ -3,7 +3,7 @@ modules:
   - moduleId: zalava-module-home-assistant
     version: 0.1.0-alpha.3
     displayName: Home Assistant
-    description: Bounded read-only Home Assistant status and entity discovery plus the module-declared, release-pinned managed-service declaration for a SEA-managed Home Assistant Container.
+    description: Bounded read-only Home Assistant status and entity discovery plus the module-declared, release-pinned managed-service declaration for a Zalava-managed Home Assistant Container.
     supportUrl: https://github.com/Zalava/zalava-module-home-assistant
     artifact:
       groupId: org.zalava.modules
@@ -16,7 +16,7 @@ modules:
       command: ["./gradlew", "build"]
       verificationCommand: ["./gradlew", "test"]
     compatibility:
-      seaRuntime: ">=1.0.0 <2.0.0"
+      zalavaRuntime: ">=1.0.0 <2.0.0"
     configurationSchema:
       type: object
       additionalProperties: false
@@ -29,7 +29,7 @@ modules:
             baseUrl:
               type: string
               title: Loopback base URL
-              description: "Loopback base URL of the SEA-managed Home Assistant instance, e.g. http://127.0.0.1:8123"
+              description: "Loopback base URL of the Zalava-managed Home Assistant instance, e.g. http://127.0.0.1:8123"
             tokenRef:
               type: string
               title: Token reference

@@ -33,9 +33,9 @@ import tools.jackson.databind.node.JsonNodeFactory;
  * Exercises the real built module JAR at the stable {@code module-api} boundary through the
  * released contract kit. A loopback {@code HttpServer} stands in for the managed Home Assistant
  * instance so no real device is required. Host-owned resolution, validation, permissions and
- * persistence stay covered by SEA.
+ * persistence stay covered by Zalava.
  */
-class HomeAssistantSeaModuleTest {
+class HomeAssistantZalavaModuleTest {
 
   private static final String MODULE_ID = "zalava-module-home-assistant";
   private static final String FACTORY_ID = "home-assistant";
@@ -211,7 +211,7 @@ class HomeAssistantSeaModuleTest {
     assertThat(declaration.desiredState().ports()).containsExactly(8123);
     assertThat(declaration.desiredState().secretReferences()).containsExactly(TOKEN_REFERENCE);
     assertThat(declaration.desiredState().dataPaths())
-        .containsExactly("/var/lib/sea/managed/home-assistant/config");
+        .containsExactly("/var/lib/zalava/managed/home-assistant/config");
 
     try (ProviderFixture providers = kit.providers(configuration(UNREACHABLE_BASE_URL, Map.of()))) {
       Map<String, Object> toolDeclaration =
