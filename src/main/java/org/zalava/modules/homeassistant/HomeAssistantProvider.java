@@ -9,16 +9,17 @@ import org.zalava.api.ProviderDescriptor;
 import org.zalava.api.ZalavaOperationResult;
 import org.zalava.api.ZalavaProvider;
 import org.zalava.api.ZalavaToolDescriptor;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
-/**
- * Agent-facing provider exposing bounded, read-only Home Assistant status plus the managed-service
- * declaration. It offers no raw device administration and no shell or URL pass-through.
- */
+/** Agent-facing provider exposing bounded Home Assistant discovery and actions. */
 final class HomeAssistantProvider implements ZalavaProvider {
   private static final String STATUS = "home_assistant_status";
   private static final String VERSION = "home_assistant_version";
   private static final String ENTITIES = "home_assistant_entities";
   private static final String MANAGED_SERVICE = "home_assistant_managed_service";
+  private static final String ACTIONS = "home_assistant_actions";
+  private static final String EXECUTE = "home_assistant_execute_action";
   private static final int MAX_ENTITIES = 500;
 
   private final HomeAssistantClient client;
@@ -34,7 +35,7 @@ final class HomeAssistantProvider implements ZalavaProvider {
         HomeAssistantZalavaModule.MODULE_ID,
         "home-automation",
         "Home Assistant",
-        "Bounded read-only Home Assistant status, entity discovery and managed-service declaration",
+        "Bounded Home Assistant discovery, validated actions and managed-service declaration",
         HomeAssistantZalavaModule.version(),
         ProviderCapabilities.toolsOnly(),
         List.of("home", "home-automation"),
@@ -56,20 +57,62 @@ final class HomeAssistantProvider implements ZalavaProvider {
             "Lists bounded discovered Home Assistant entities with id, state and friendly name."),
         tool(
             MANAGED_SERVICE,
-            "Returns the digest-pinned managed-service declaration for administrator approval."));
+            "Returns the digest-pinned managed-service declaration for administrator approval."),
+        tool(
+            ACTIONS,
+            "Discovers available actions and parameter metadata. Discovery does not prove target support."),
+        new ZalavaToolDescriptor(
+            EXECUTE,
+            "Executes a currently discovered Home Assistant action. Requires host authorization and approval; success does not verify a physical outcome. Never retry an uncertain result without observing state.",
+            true,
+            List.of("home"),
+            Map.of(
+                "type",
+                "object",
+                "additionalProperties",
+                false,
+                "required",
+                List.of("domain", "action"),
+                "properties",
+                Map.of(
+                    "domain", Map.of("type", "string", "pattern", "^[a-z0-9_]{1,128}$"),
+                    "action", Map.of("type", "string", "pattern", "^[a-z0-9_]{1,128}$"),
+                    "entityId",
+                        Map.of(
+                            "type",
+                            "string",
+                            "description",
+                            "One explicit live entity ID; required for targeted actions."),
+                    "serviceData",
+                        Map.of(
+                            "type",
+                            "object",
+                            "description",
+                            "Parameters described by discovery; no target overrides."),
+                    "returnResponse",
+                        Map.of(
+                            "type",
+                            "boolean",
+                            "description",
+                            "Set only when HA action requires or supports response data.")))));
   }
 
   @Override
   public ZalavaOperationResult callTool(
-      String toolName, java.util.Map<String, Object> argumentValues, InvocationContext context) {
-    tools.jackson.databind.JsonNode arguments =
-        new tools.jackson.databind.json.JsonMapper().valueToTree(argumentValues);
+      String toolName, Map<String, Object> argumentValues, InvocationContext context) {
+    JsonNode arguments = new JsonMapper().valueToTree(argumentValues);
     try {
       return switch (toolName) {
         case STATUS -> status();
         case VERSION -> ZalavaOperationResult.success(Map.of("version", client.version()));
         case ENTITIES -> entities();
         case MANAGED_SERVICE -> managedService();
+        case ACTIONS -> {
+          var actions = new HomeAssistantActions(client).discover();
+          yield ZalavaOperationResult.success(Map.of("count", actions.size(), "actions", actions));
+        }
+        case EXECUTE ->
+            ZalavaOperationResult.success(new HomeAssistantActions(client).execute(arguments));
         default -> ZalavaOperationResult.failure(Map.of("error", "Unknown tool: " + toolName));
       };
     } catch (HomeAssistantException exception) {
