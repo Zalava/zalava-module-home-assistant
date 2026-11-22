@@ -3,6 +3,32 @@
   "moduleId": "zalava-module-home-assistant",
   "releases": [
     {
+      "version": "0.1.0-alpha.5",
+      "releaseTag": "v0.1.0-alpha.5",
+      "artifact": {
+        "groupId": "org.zalava.modules",
+        "artifactId": "zalava-module-home-assistant",
+        "version": "0.1.0-alpha.5",
+        "sha256": "8b95e77154ed4c6e35f21d60d2cf89abeabfb8c10ceba1abfdff75f76466320b",
+        "type": "github-release-assets",
+        "repositoryUri": "https://github.com/Zalava/zalava-module-home-assistant",
+        "releaseTag": "v0.1.0-alpha.5",
+        "assetName": "zalava-module-home-assistant-0.1.0-alpha.5.jar"
+      },
+      "artifactBundle": false,
+      "source": {
+        "repository": "https://github.com/Zalava/zalava-module-home-assistant.git",
+        "revision": "becfe0c41cc8854786072c1b8dd9428f097c90a9",
+        "license": "Apache-2.0"
+      },
+      "compatibility": {
+        "zalavaRuntime": ">=1.0.0 <2.0.0"
+      },
+      "security": {
+        "permissions": []
+      }
+    },
+    {
       "version": "0.1.0-alpha.4",
       "releaseTag": "v0.1.0-alpha.4",
       "artifact": {
