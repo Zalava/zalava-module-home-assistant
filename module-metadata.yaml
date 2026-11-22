@@ -1,14 +1,14 @@
 schemaVersion: 1
 modules:
   - moduleId: zalava-module-home-assistant
-    version: 0.1.0-alpha.4
+    version: 0.1.0-alpha.5
     displayName: Home Assistant
-    description: Bounded read-only Home Assistant status and entity discovery plus the module-declared, release-pinned managed-service declaration for a Zalava-managed Home Assistant Container.
+    description: Bounded Home Assistant status, entity and action discovery, validated action execution and a release-pinned managed-service declaration.
     supportUrl: https://github.com/Zalava/zalava-module-home-assistant
     artifact:
       groupId: org.zalava.modules
       artifactId: zalava-module-home-assistant
-      version: 0.1.0-alpha.4
+      version: 0.1.0-alpha.5
     source:
       repository: https://github.com/Zalava/zalava-module-home-assistant.git
       license: Apache-2.0

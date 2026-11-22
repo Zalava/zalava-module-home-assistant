@@ -112,8 +112,13 @@ class HomeAssistantZalavaModuleTest {
               "home_assistant_status",
               "home_assistant_version",
               "home_assistant_entities",
-              "home_assistant_managed_service");
-      assertThat(provider.listTools()).allMatch(tool -> !tool.sideEffecting());
+              "home_assistant_managed_service",
+              "home_assistant_actions",
+              "home_assistant_execute_action");
+      assertThat(provider.listTools())
+          .filteredOn(ZalavaToolDescriptor::sideEffecting)
+          .extracting(ZalavaToolDescriptor::name)
+          .containsExactly("home_assistant_execute_action");
     }
   }
 

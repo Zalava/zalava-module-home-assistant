@@ -1,24 +1,29 @@
 package org.zalava.modules.homeassistant;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Flow;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Bounded, authenticated read-only client for a Zalava-managed Home Assistant instance.
+ * Bounded, authenticated client for a Zalava-managed Home Assistant instance.
  *
  * <p>The token is only ever sent as a bearer header; it is never logged or returned. Every response
  * is capped at a caller-chosen byte bound so a hostile or misconfigured instance cannot exhaust
@@ -51,27 +56,45 @@ final class HomeAssistantClient {
   }
 
   Response get(String path) {
+    return request(path, null);
+  }
+
+  Response post(String path, Map<String, Object> data) {
+    byte[] body = MAPPER.writeValueAsBytes(data);
+    if (body.length > 65_536) {
+      throw new HomeAssistantException("Home Assistant request exceeds the bounded limit");
+    }
+    return request(path, body);
+  }
+
+  private Response request(String path, byte[] body) {
+    HttpRequest.Builder builder =
+        HttpRequest.newBuilder(baseUri.resolve(path))
+            .timeout(requestTimeout)
+            .header("Authorization", "Bearer " + token)
+            .header("Accept", "application/json");
+    HttpRequest request =
+        body == null
+            ? builder.GET().build()
+            : builder
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofByteArray(body))
+                .build();
+    BoundedBody subscriber = new BoundedBody(maxResponseBytes);
+    CompletableFuture<HttpResponse<byte[]>> pending =
+        http.sendAsync(request, ignored -> subscriber);
     try {
-      HttpRequest request =
-          HttpRequest.newBuilder(baseUri.resolve(path))
-              .timeout(requestTimeout)
-              .header("Authorization", "Bearer " + token)
-              .header("Accept", "application/json")
-              .GET()
-              .build();
-      HttpResponse<InputStream> response =
-          http.send(request, HttpResponse.BodyHandlers.ofInputStream());
-      byte[] body;
-      try (InputStream input = response.body()) {
-        body = readBounded(input);
-      }
-      return new Response(response.statusCode(), new String(body, StandardCharsets.UTF_8));
-    } catch (IOException exception) {
-      throw new HomeAssistantException("Home Assistant request failed for " + path, exception);
+      HttpResponse<byte[]> response = pending.get(requestTimeout.toNanos(), TimeUnit.NANOSECONDS);
+      return new Response(
+          response.statusCode(), new String(response.body(), StandardCharsets.UTF_8));
+    } catch (ExecutionException | TimeoutException exception) {
+      throw new HomeAssistantException("Home Assistant request failed or exceeded its deadline");
     } catch (InterruptedException exception) {
       Thread.currentThread().interrupt();
-      throw new HomeAssistantException(
-          "Home Assistant request was interrupted for " + path, exception);
+      throw new HomeAssistantException("Home Assistant request was interrupted");
+    } finally {
+      pending.cancel(true);
+      subscriber.cancel();
     }
   }
 
@@ -128,19 +151,64 @@ final class HomeAssistantClient {
     }
   }
 
-  private byte[] readBounded(InputStream input) throws IOException {
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    byte[] buffer = new byte[8192];
-    int total = 0;
-    int read;
-    while ((read = input.read(buffer)) != -1) {
-      total += read;
-      if (total > maxResponseBytes) {
-        throw new HomeAssistantException("Home Assistant response exceeds the bounded limit");
-      }
-      output.write(buffer, 0, read);
+  private static final class BoundedBody implements HttpResponse.BodySubscriber<byte[]> {
+    private final int maximum;
+    private final ByteArrayOutputStream output = new ByteArrayOutputStream();
+    private final CompletableFuture<byte[]> result = new CompletableFuture<>();
+    private Flow.Subscription subscription;
+    private boolean cancelled;
+
+    BoundedBody(int maximum) {
+      this.maximum = maximum;
     }
-    return output.toByteArray();
+
+    @Override
+    public CompletionStage<byte[]> getBody() {
+      return result;
+    }
+
+    @Override
+    public synchronized void onSubscribe(Flow.Subscription value) {
+      subscription = value;
+      if (cancelled) {
+        value.cancel();
+      } else {
+        value.request(1);
+      }
+    }
+
+    @Override
+    public synchronized void onNext(List<ByteBuffer> buffers) {
+      for (ByteBuffer buffer : buffers) {
+        if (buffer.remaining() > maximum - output.size()) {
+          result.completeExceptionally(
+              new HomeAssistantException("Home Assistant response exceeds the bounded limit"));
+          cancel();
+          return;
+        }
+        byte[] bytes = new byte[buffer.remaining()];
+        buffer.get(bytes);
+        output.writeBytes(bytes);
+      }
+      subscription.request(1);
+    }
+
+    @Override
+    public void onError(Throwable error) {
+      result.completeExceptionally(error);
+    }
+
+    @Override
+    public synchronized void onComplete() {
+      result.complete(output.toByteArray());
+    }
+
+    synchronized void cancel() {
+      cancelled = true;
+      if (subscription != null) {
+        subscription.cancel();
+      }
+    }
   }
 
   private static URI normalize(URI baseUri) {
